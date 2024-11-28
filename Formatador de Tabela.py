@@ -19,8 +19,8 @@ def formatar_nomes(celula):
     for par in celula.paragraphs:
         par.text = " ".join([palavra.capitalize() for palavra in par.text.split()])
 
-# Função para estilizar apenas a primeira tabela
-def estilizar_primeira_tabela(tabela):
+# Função para estilizar as tabelas de maneira geral
+def estilizar_tabela(tabela):
     # Detectar o índice da coluna "Nome"
     nome_coluna_index = None
     for idx, celula in enumerate(tabela.rows[0].cells):
@@ -30,12 +30,12 @@ def estilizar_primeira_tabela(tabela):
     
     # Ajustar as larguras das colunas conforme especificado
     larguras = {
-        0: 1.5,  # Portaria
-        1: 2.07,  # Data
-        2: 5.5,   # Nome
-        3: 2.19,  # Cargo
-        4: 2.5,   # CPF
-        5: 2.25   # RG
+        0: 1.51,  # Portaria
+        1: 2.00,  # Data
+        2: 5.25,   # Nome
+        3: 3.75,  # Cargo
+        4: 2.75,   # CPF
+        5: 2.26   # RG
     }
     
     for i, linha in enumerate(tabela.rows):
@@ -56,7 +56,7 @@ def estilizar_primeira_tabela(tabela):
                     run.font.name = 'Arial'
                     run.font.size = Pt(10)
                 par.paragraph_format.line_spacing_rule = WD_LINE_SPACING.MULTIPLE
-                par.paragraph_format.line_spacing = 1.15
+                par.paragraph_format.line_spacing = 1.5
                 par.paragraph_format.space_before = Pt(6)
             celula.vertical_alignment = WD_ALIGN_VERTICAL.CENTER
 
@@ -81,8 +81,8 @@ def estilizar_primeira_tabela(tabela):
 # Função para aplicar estilo às tabelas do documento
 def estilizar_tabelas(doc):
     for i, tabela in enumerate(doc.tables):
-        if i == 0:  # Estilizar apenas a primeira tabela
-            estilizar_primeira_tabela(tabela)
+        if i < 2:  # Estilizar as duas primeiras tabelas
+            estilizar_tabela(tabela)
     return doc
 
 # Função para abrir o arquivo Word
