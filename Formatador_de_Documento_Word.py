@@ -200,6 +200,47 @@ def estilizar_tabela2(tabela):
 
 
 
+def estilizar_tabela3(tabela):
+    # Estilizar cada célula da tabela
+    for linha in tabela.rows:
+        for celula in linha.cells:
+            # Centralizar texto e aplicar fonte Arial, tamanho 10
+            for par in celula.paragraphs:
+                for run in par.runs:
+                    run.font.name = 'Arial'
+                    run.font.size = Pt(10)
+                par.alignment = 1  # Centralizar texto horizontalmente
+                par.paragraph_format.line_spacing_rule = WD_LINE_SPACING.MULTIPLE
+                par.paragraph_format.line_spacing = 1.15
+                par.paragraph_format.space_before = Pt(6)
+
+            # Aplicar bordas em todas as células
+            tc_pr = celula._element.get_or_add_tcPr()
+            borders = parse_xml(
+                r'<w:tcBorders xmlns:w="http://schemas.openxmlformats.org/wordprocessingml/2006/main">'
+                r'<w:top w:val="single" w:sz="4" w:space="0" w:color="000000"/>'
+                r'<w:left w:val="single" w:sz="4" w:space="0" w:color="000000"/>'
+                r'<w:bottom w:val="single" w:sz="4" w:space="0" w:color="000000"/>'
+                r'<w:right w:val="single" w:sz="4" w:space="0" w:color="000000"/>'
+                r'</w:tcBorders>'
+            )
+            tc_pr.append(borders)
+
+            # Centralizar verticalmente a célula
+            celula.vertical_alignment = WD_ALIGN_VERTICAL.CENTER
+
+    # Estilizar a tabela inteira após a aplicação das bordas e alinhamentos
+    for linha in tabela.rows:
+        for celula in linha.cells:
+            for par in celula.paragraphs:
+                for run in par.runs:
+                    run.font.name = 'Arial'
+                    run.font.size = Pt(10)
+                par.alignment = 1  # Centralizar texto horizontalmente
+                par.paragraph_format.line_spacing_rule = WD_LINE_SPACING.MULTIPLE
+                par.paragraph_format.line_spacing = 1.15
+                par.paragraph_format.space_before = Pt(6)
+                
 
 # Função para aplicar estilos às tabelas
 def estilizar_tabelas(doc):
@@ -208,6 +249,8 @@ def estilizar_tabelas(doc):
             estilizar_tabela1(tabela)
         elif i == 1:  # Segunda tabela
             estilizar_tabela2(tabela)
+        elif i == 2:  # Terceira tabela
+            estilizar_tabela3(tabela)
     return doc
 
 
