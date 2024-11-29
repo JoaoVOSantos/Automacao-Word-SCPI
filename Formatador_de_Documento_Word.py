@@ -29,6 +29,7 @@ def definir_margens(doc):
         section.right_margin = Pt(1.5 * 28.35)
         section.header_distance = Pt(0.5 * 28.35)
         section.footer_distance = Pt(0.56 * 28.35)
+
 # Função para formatar os nomes com a primeira letra maiúscula
 def formatar_nomes(celula):
     for par in celula.paragraphs:
@@ -84,10 +85,10 @@ def estilizar_tabela1(tabela):
             tc_pr = celula._element.get_or_add_tcPr()
             borders = parse_xml(
                 r'<w:tcBorders xmlns:w="http://schemas.openxmlformats.org/wordprocessingml/2006/main">'
-                r'<w:top w:val="single" w:sz="4" w:space="0" w:color="000000"/>'
-                r'<w:left w:val="single" w:sz="4" w:space="0" w:color="000000"/>'
-                r'<w:bottom w:val="single" w:sz="4" w:space="0" w:color="000000"/>'
-                r'<w:right w:val="single" w:sz="4" w:space="0" w:color="000000"/>'
+                r'<w:top w:val="single" w:sz="4" w:space="0" w:color="000000"/>' 
+                r'<w:left w:val="single" w:sz="4" w:space="0" w:color="000000"/>' 
+                r'<w:bottom w:val="single" w:sz="4" w:space="0" w:color="000000"/>' 
+                r'<w:right w:val="single" w:sz="4" w:space="0" w:color="000000"/>' 
                 r'</w:tcBorders>' 
             )
             tc_pr.append(borders)
@@ -103,7 +104,6 @@ def estilizar_tabela1(tabela):
                 par.paragraph_format.line_spacing_rule = WD_LINE_SPACING.MULTIPLE
                 par.paragraph_format.line_spacing = 1.15
                 par.paragraph_format.space_before = Pt(6)
-
 
 def capitalizar_nome(nome):
     # Lista de exceções
@@ -122,25 +122,45 @@ def capitalizar_nome(nome):
     # Junta as palavras novamente em uma string
     return " ".join(palavras_capitalizadas)
 
+
 def estilizar_tabela2(tabela):
-    # Alterar nome da primeira coluna para "Lances"
+    # Alterar nome da primeira coluna para "Lances" (apenas uma vez)
     if tabela.rows:
-        # Verificar se a tabela tem pelo menos uma linha (cabeçalho)
         cabeçalho = tabela.rows[0]
         if len(cabeçalho.cells) > 0:
-            # Alterar o texto da célula no índice 0 para "Lances"
             cabeçalho.cells[0].text = "Lances"
+    
+    # Definir as larguras das colunas em centímetros
+    larguras_colunas = [1.26, 7.00, 3.00, 3.50, 2.76]  # Larguras em cm
+
+    # Definir larguras das colunas em pontos
+    larguras_colunas_pts = [largura * 28.35 for largura in larguras_colunas]
+
+    for linha in tabela.rows:
+        # Definir a largura das colunas
+        for col_idx, celula in enumerate(linha.cells):
+            if col_idx < len(larguras_colunas_pts):
+                largura_em_pontos = int(larguras_colunas_pts[col_idx])
+                celula._element.get_or_add_tcPr().append(parse_xml(
+                    f'<w:tcW xmlns:w="http://schemas.openxmlformats.org/wordprocessingml/2006/main" w:w="{largura_em_pontos}" w:type="dxa"/>'))
 
     for linha in tabela.rows:
         for idx, celula in enumerate(linha.cells):
+            # Se a célula for da coluna de índice 0 (Lances), remover espaços vazios
+            if idx == 0:
+                for par in celula.paragraphs:
+                    par.text = ' '.join(par.text.split())  # Remove espaços extras
+
             # Se a célula for da coluna de índice 1 (que contém os nomes), aplicar a capitalização
             if idx == 1:
+                # Preservar quebras de linha
+                novo_texto = []
                 for par in celula.paragraphs:
-                    for run in par.runs:
-                        run.font.name = 'Arial'
-                        run.font.size = Pt(10)
-                    # Modificar o texto da célula, capitalizando corretamente os nomes
-                    celula.text = capitalizar_nome(celula.text)
+                    # Capitaliza cada parágrafo, preservando a quebra de linha
+                    par.text = capitalizar_nome(par.text)
+                    novo_texto.append(par.text)
+                # Recria o texto da célula com as quebras de linha
+                celula.text = '\n'.join(novo_texto)
 
             for par in celula.paragraphs:
                 for run in par.runs:
@@ -151,14 +171,14 @@ def estilizar_tabela2(tabela):
                 par.paragraph_format.line_spacing = 1.15
                 par.paragraph_format.space_before = Pt(6)
 
-            # Adicionar bordas nas células da tabela 2
+            # Adicionar bordas nas células
             tc_pr = celula._element.get_or_add_tcPr()
             borders = parse_xml(
                 r'<w:tcBorders xmlns:w="http://schemas.openxmlformats.org/wordprocessingml/2006/main">'
-                r'<w:top w:val="single" w:sz="4" w:space="0" w:color="000000"/>'
-                r'<w:left w:val="single" w:sz="4" w:space="0" w:color="000000"/>'
-                r'<w:bottom w:val="single" w:sz="4" w:space="0" w:color="000000"/>'
-                r'<w:right w:val="single" w:sz="4" w:space="0" w:color="000000"/>'
+                r'<w:top w:val="single" w:sz="4" w:space="0" w:color="000000"/>' 
+                r'<w:left w:val="single" w:sz="4" w:space="0" w:color="000000"/>' 
+                r'<w:bottom w:val="single" w:sz="4" w:space="0" w:color="000000"/>' 
+                r'<w:right w:val="single" w:sz="4" w:space="0" w:color="000000"/>' 
                 r'</w:tcBorders>' 
             )
             tc_pr.append(borders)
@@ -177,6 +197,7 @@ def estilizar_tabela2(tabela):
                 par.paragraph_format.line_spacing_rule = WD_LINE_SPACING.MULTIPLE
                 par.paragraph_format.line_spacing = 1.15
                 par.paragraph_format.space_before = Pt(6)
+
 
 
 
