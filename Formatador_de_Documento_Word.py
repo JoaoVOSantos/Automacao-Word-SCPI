@@ -37,6 +37,7 @@ def formatar_nomes(celula):
         # Formatar texto: primeira letra maiúscula
         par.text = " ".join([palavra.capitalize() for palavra in par.text.split()])
 
+
 # Função para estilizar a Tabela 1
 def estilizar_tabela1(tabela):
     # Detectar o índice da coluna "Nome"
@@ -382,6 +383,10 @@ def estilizar_tabela4(tabela):
                 # Centralizar verticalmente a célula
                 celula.vertical_alignment = WD_ALIGN_VERTICAL.CENTER
 
+    
+    
+
+
 # Função para aplicar estilos às tabelas
 def estilizar_tabelas(doc):
     for i, tabela in enumerate(doc.tables):
@@ -394,7 +399,7 @@ def estilizar_tabelas(doc):
         elif i == 2:
             # Estilizar a terceira tabela com estilo de Tabela 3
             estilizar_tabela3(tabela)
-        elif i ==3:
+        elif i == 3:
             estilizar_tabela4(tabela)
            
 
