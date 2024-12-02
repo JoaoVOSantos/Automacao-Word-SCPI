@@ -355,7 +355,32 @@ def estilizar_tabela3(tabela):
                     par.paragraph_format.space_before = Pt(6)
 
                 
+def estilizar_tabela4(tabela):
+     # Para outras tabelas, você pode aplicar um estilo genérico ou personalizado
+    ajustar_largura_por_tabela(tabela)  # Ajustar larguras de tabela
+    for linha in tabela.rows:
+        for celula in linha.cells:
+             for par in celula.paragraphs:
+                for run in par.runs:
+                    run.font.name = 'Arial'
+                    run.font.size = Pt(9)
+                par.alignment = 1  # Centraliza o texto horizontalmente
+                par.paragraph_format.line_spacing_rule = WD_LINE_SPACING.MULTIPLE
+                par.paragraph_format.line_spacing = 1.15
+            # Adicionar bordas em todas as células
+                tc_pr = celula._element.get_or_add_tcPr()
+                borders = parse_xml(
+                    r'<w:tcBorders xmlns:w="http://schemas.openxmlformats.org/wordprocessingml/2006/main">'
+                    r'<w:top w:val="single" w:sz="4" w:space="0" w:color="000000"/>'
+                    r'<w:left w:val="single" w:sz="4" w:space="0" w:color="000000"/>'
+                    r'<w:bottom w:val="single" w:sz="4" w:space="0" w:color="000000"/>'
+                    r'<w:right w:val="single" w:sz="4" w:space="0" w:color="000000"/>'
+                    r'</w:tcBorders>'
+                )
+                tc_pr.append(borders)
 
+                # Centralizar verticalmente a célula
+                celula.vertical_alignment = WD_ALIGN_VERTICAL.CENTER
 
 # Função para aplicar estilos às tabelas
 def estilizar_tabelas(doc):
@@ -369,33 +394,9 @@ def estilizar_tabelas(doc):
         elif i == 2:
             # Estilizar a terceira tabela com estilo de Tabela 3
             estilizar_tabela3(tabela)
-        else:
-            # Para outras tabelas, você pode aplicar um estilo genérico ou personalizado
-            ajustar_largura_por_tabela(tabela)  # Ajustar larguras de tabela
-            for linha in tabela.rows:
-                for celula in linha.cells:
-                    for par in celula.paragraphs:
-                        for run in par.runs:
-                            run.font.name = 'Arial'
-                            run.font.size = Pt(10)
-                        par.alignment = 1  # Centraliza o texto horizontalmente
-                        par.paragraph_format.line_spacing_rule = WD_LINE_SPACING.MULTIPLE
-                        par.paragraph_format.line_spacing = 1.15
-                        par.paragraph_format.space_before = Pt(6)
-                    # Adicionar bordas em todas as células
-                    tc_pr = celula._element.get_or_add_tcPr()
-                    borders = parse_xml(
-                        r'<w:tcBorders xmlns:w="http://schemas.openxmlformats.org/wordprocessingml/2006/main">'
-                        r'<w:top w:val="single" w:sz="4" w:space="0" w:color="000000"/>'
-                        r'<w:left w:val="single" w:sz="4" w:space="0" w:color="000000"/>'
-                        r'<w:bottom w:val="single" w:sz="4" w:space="0" w:color="000000"/>'
-                        r'<w:right w:val="single" w:sz="4" w:space="0" w:color="000000"/>'
-                        r'</w:tcBorders>'
-                    )
-                    tc_pr.append(borders)
-
-                    # Centralizar verticalmente a célula
-                    celula.vertical_alignment = WD_ALIGN_VERTICAL.CENTER
+        elif i ==3:
+            estilizar_tabela4(tabela)
+           
 
 
 # Função para copiar conteúdo e estilizar
