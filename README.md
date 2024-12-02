@@ -1,41 +1,90 @@
 
-# Formatador de Tabelas em Arquivos Word
+# 📝 Formatação de Documentos Word com Python-docx
 
-Este é um programa Python que formata tabelas em documentos Word (`.docx`) de acordo com as especificações fornecidas. Ele utiliza a biblioteca `python-docx` para manipular documentos e o `Tkinter` para a interface gráfica.
+Este projeto é uma aplicação em Python que utiliza a biblioteca **python-docx** para estilizar e formatar documentos do Microsoft Word de maneira automatizada. Inclui funcionalidades como estilização de parágrafos, tabelas e margens, além de uma interface gráfica amigável para facilitar a seleção e o salvamento dos arquivos.
 
-## Funcionalidades
+---
 
-- **Fonte**: Arial, tamanho 10.
-- **Alinhamento**: Texto centralizado horizontal e verticalmente.
-- **Espaçamento entre linhas**: Múltiplos de 1,15.
-- **Espaçamento antes do parágrafo**: 6pt.
-- **Bordas**: Adiciona bordas pretas a todas as células.
+## 🚀 Funcionalidades
 
-## Requisitos
+- Ajuste automático das margens do documento.
+- Formatação de parágrafos com estilos personalizados.
+- Criação e estilização de tabelas.
+- Interface gráfica para carregar e salvar documentos com facilidade.
 
-- Python 3.8 ou superior.
-- Bibliotecas:
+---
+
+## 🛠️ Instalação e Configuração
+
+Siga os passos abaixo para configurar o ambiente e executar o projeto.
+
+### 1. **Pré-requisitos**
+
+Certifique-se de que possui os seguintes itens instalados no sistema:
+
+- **Python 3.8+**: [Baixe aqui](https://www.python.org/downloads/)
+- **Bibliotecas Python Necessárias**:
   - `python-docx`
-  - `tkinter`
+  - `tkinter` (incluso por padrão em instalações do Python)
 
-Para instalar a biblioteca `python-docx`, utilize o comando:
+### 2. **Clonar ou Obter o Código**
+
+Baixe o código-fonte do projeto ou clone o repositório no diretório desejado:
+
+```bash
+git clone https://github.com/JoaoVOSantos/WordFormatter.git
+cd WordFormatter
+```
+
+### 3. **Instalar Dependências**
+
+Instale as bibliotecas necessárias com o **pip**:
 
 ```bash
 pip install python-docx
 ```
 
-## Como Usar
+### 4. **Executar o Projeto**
 
-1. Execute o programa em Python.
-2. Uma janela será aberta para selecionar o arquivo Word a ser formatado.
-3. Após selecionar o arquivo, o programa aplicará as formatações às tabelas.
-4. Em seguida, uma janela permitirá que você salve o arquivo formatado com um novo nome.
+Execute o script Python para iniciar o programa:
 
-## Observações
+```bash
+python nome_do_script.py
+```
 
-Este programa foi desenvolvido para uso específico em tabelas de documentos Word. Certifique-se de que o arquivo `.docx` possui tabelas antes de processá-lo.
+---
 
+## 🖥️ Como Usar
 
-## 📅 Feito por João Vitor em uma quinta/??? qualquer
+1. **Abrir o Programa**:
+   - Execute o script no terminal ou duplo clique no arquivo `.py` (se o Python estiver configurado no sistema).
 
-Obrigado por usar este projeto! 😄
+2. **Carregar um Documento Word**:
+   - Use a interface gráfica para selecionar o arquivo `.docx` que deseja estilizar.
+
+3. **Aplicar Formatações**:
+   - Ajuste as margens, estilize parágrafos ou crie tabelas conforme necessário.
+
+4. **Salvar o Documento**:
+   - Escolha o local para salvar o arquivo formatado.
+
+---
+
+## 📂 Estrutura de Diretórios
+
+- `nome_do_script.py`: Código-fonte principal do projeto.
+- `arquivos/`: Diretório sugerido para armazenar documentos antes e depois da formatação.
+
+---
+
+## 📝 Notas Importantes
+
+- **Formatos Suportados**: O programa só funciona com arquivos `.docx`.
+- **Personalização**: A lógica de formatação pode ser facilmente adaptada para outros estilos ou requisitos específicos.
+- **Interface Gráfica**: Certifique-se de que o `tkinter` está disponível no ambiente Python.
+
+---
+
+## 📅 Feito por João Vitor
+
+Sinta-se à vontade para melhorar este projeto e compartilhar suas ideias! 😄
