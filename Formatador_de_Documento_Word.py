@@ -1,12 +1,13 @@
 import tkinter as tk
 from tkinter import filedialog
 from docx import Document
-from docx.shared import Pt
+from docx.shared import Pt, Cm, Inches
 from docx.enum.table import WD_ALIGN_VERTICAL
 from docx.oxml import parse_xml
 from docx.enum.text import WD_LINE_SPACING
 import os
 
+                
 # Função para estilizar os parágrafos
 def estilizar_paragrafos(doc):
     for par in doc.paragraphs:
@@ -199,21 +200,75 @@ def estilizar_tabela2(tabela):
                 par.paragraph_format.space_before = Pt(6)
 
 
+def ajustar_largura_por_tabela(tabela):
+    """
+    Ajusta as larguras das colunas com base na tabela.
+    A largura das colunas será configurada conforme o tipo de tabela.
+    """
+    # Definir larguras para a tabela com as colunas: Item, Lote, Descrição, Valor Total, Status Lance
+    larguras_tabela1 = [1.21, 1.8, 10.5, 2, 2.01]
+
+    # Verifica se a tabela tem as colunas específicas e aplica as larguras
+    if len(tabela.columns) >= 5:  # Verifica se há pelo menos 5 colunas
+        # Verifica os títulos das colunas para identificar a estrutura
+        colunas_identificadas = [tabela.rows[0].cells[i].text.strip() for i in range(5)]
+        
+        # Se a estrutura for igual à esperada, define as larguras
+        if colunas_identificadas == ['Item', 'Lote', 'Descrição', 'Valor Total', 'Status Lance']:
+            for idx, largura in enumerate(larguras_tabela1):
+                if idx < len(tabela.columns):
+                    for celula in tabela.columns[idx].cells:
+                        celula.width = Cm(largura)
 
 def estilizar_tabela3(tabela):
-    # Estilizar cada célula da tabela
-    for linha in tabela.rows:
-        for celula in linha.cells:
-            # Centralizar texto e aplicar fonte Arial, tamanho 10
-            for par in celula.paragraphs:
-                for run in par.runs:
-                    run.font.name = 'Arial'
-                    run.font.size = Pt(10)
-                par.alignment = 1  # Centralizar texto horizontalmente
-                par.paragraph_format.line_spacing_rule = WD_LINE_SPACING.MULTIPLE
-                par.paragraph_format.line_spacing = 1.15
-                par.paragraph_format.space_before = Pt(6)
+    # Determinar as colunas a remover ou estilizar
+    col_lote_idx = None
+    col_codigo_idx = None
+    col_valor_unitario_idx = None
+    col_unidade_idx = None
+    col_quantidade_idx = None
+    col_marca_idx = None
 
+    # Verifica a primeira linha como cabeçalho para identificar as colunas
+    if tabela.rows:
+        for idx, celula in enumerate(tabela.rows[0].cells):
+            texto_celula = celula.text.strip()
+            if texto_celula.startswith("Lote"):
+                col_lote_idx = idx
+            elif texto_celula.startswith("Código"):
+                col_codigo_idx = idx
+            elif texto_celula.startswith("Valor Unitário"):
+                col_valor_unitario_idx = idx
+            elif texto_celula.startswith("Unidade"):
+                col_unidade_idx = idx
+            elif texto_celula.startswith("Quantidade"):
+                col_quantidade_idx = idx
+            elif texto_celula.startswith("Marca"):
+                col_marca_idx = idx
+            elif texto_celula.startswith("Descrição"):
+                # A coluna de descrição pode ser variada, ajusta aqui conforme necessário
+                pass
+
+    # Ajusta o índice da coluna "Lote" se estiver misturado com "Código"
+    if col_codigo_idx is not None and col_lote_idx is None:
+        for linha in tabela.rows:
+            texto_celula = linha.cells[col_codigo_idx].text.strip()
+            if "Lote" in texto_celula.split("\n")[0]:
+                col_lote_idx = col_codigo_idx
+                col_codigo_idx = None
+                break
+
+    # Se existir uma coluna "Código", removê-la
+    if col_codigo_idx is not None:
+        for linha in tabela.rows:
+            linha.cells[col_codigo_idx]._element.getparent().remove(linha.cells[col_codigo_idx]._element)
+
+    # Ajusta larguras com base nas colunas da tabela
+    ajustar_largura_por_tabela(tabela)
+
+    # Estilizar a tabela restante
+    for linha in tabela.rows:
+        for idx, celula in enumerate(linha.cells):
             # Aplicar bordas em todas as células
             tc_pr = celula._element.get_or_add_tcPr()
             borders = parse_xml(
@@ -229,29 +284,61 @@ def estilizar_tabela3(tabela):
             # Centralizar verticalmente a célula
             celula.vertical_alignment = WD_ALIGN_VERTICAL.CENTER
 
-    # Estilizar a tabela inteira após a aplicação das bordas e alinhamentos
+    # Estilizar todas as células restantes
     for linha in tabela.rows:
         for celula in linha.cells:
             for par in celula.paragraphs:
                 for run in par.runs:
                     run.font.name = 'Arial'
-                    run.font.size = Pt(10)
+                    run.font.size = Pt(9)
                 par.alignment = 1  # Centralizar texto horizontalmente
                 par.paragraph_format.line_spacing_rule = WD_LINE_SPACING.MULTIPLE
                 par.paragraph_format.line_spacing = 1.15
                 par.paragraph_format.space_before = Pt(6)
+
+
                 
+
 
 # Função para aplicar estilos às tabelas
 def estilizar_tabelas(doc):
     for i, tabela in enumerate(doc.tables):
-        if i == 0:  # Primeira tabela
+        if i == 0:
+            # Estilizar a primeira tabela com estilo de Tabela 1
             estilizar_tabela1(tabela)
-        elif i == 1:  # Segunda tabela
+        elif i == 1:
+            # Estilizar a segunda tabela com estilo de Tabela 2
             estilizar_tabela2(tabela)
-        elif i == 2:  # Terceira tabela
+        elif i == 2:
+            # Estilizar a terceira tabela com estilo de Tabela 3
             estilizar_tabela3(tabela)
-    return doc
+        else:
+            # Para outras tabelas, você pode aplicar um estilo genérico ou personalizado
+            ajustar_largura_por_tabela(tabela)  # Ajustar larguras de tabela
+            for linha in tabela.rows:
+                for celula in linha.cells:
+                    for par in celula.paragraphs:
+                        for run in par.runs:
+                            run.font.name = 'Arial'
+                            run.font.size = Pt(10)
+                        par.alignment = 1  # Centraliza o texto horizontalmente
+                        par.paragraph_format.line_spacing_rule = WD_LINE_SPACING.MULTIPLE
+                        par.paragraph_format.line_spacing = 1.15
+                        par.paragraph_format.space_before = Pt(6)
+                    # Adicionar bordas em todas as células
+                    tc_pr = celula._element.get_or_add_tcPr()
+                    borders = parse_xml(
+                        r'<w:tcBorders xmlns:w="http://schemas.openxmlformats.org/wordprocessingml/2006/main">'
+                        r'<w:top w:val="single" w:sz="4" w:space="0" w:color="000000"/>'
+                        r'<w:left w:val="single" w:sz="4" w:space="0" w:color="000000"/>'
+                        r'<w:bottom w:val="single" w:sz="4" w:space="0" w:color="000000"/>'
+                        r'<w:right w:val="single" w:sz="4" w:space="0" w:color="000000"/>'
+                        r'</w:tcBorders>'
+                    )
+                    tc_pr.append(borders)
+
+                    # Centralizar verticalmente a célula
+                    celula.vertical_alignment = WD_ALIGN_VERTICAL.CENTER
 
 
 # Função para copiar conteúdo e estilizar
