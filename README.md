@@ -32,8 +32,8 @@ Certifique-se de que possui os seguintes itens instalados no sistema:
 Baixe o código-fonte do projeto ou clone o repositório no diretório desejado:
 
 ```bash
-git clone https://github.com/JoaoVOSantos/WordFormatter.git
-cd WordFormatter
+git clone https://github.com/JoaoVOSantos/Automacao-Word-SCPI.git
+cd Automacao-Word-SCPI
 ```
 
 ### 3. **Instalar Dependências**
@@ -49,7 +49,7 @@ pip install python-docx
 Execute o script Python para iniciar o programa:
 
 ```bash
-python nome_do_script.py
+python Formatador_de_Documento_Word.py
 ```
 
 ---
