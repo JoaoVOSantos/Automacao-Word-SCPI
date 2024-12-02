@@ -220,6 +220,31 @@ def ajustar_largura_por_tabela(tabela):
                     for celula in tabela.columns[idx].cells:
                         celula.width = Cm(largura)
 
+def capitalizar_nome_com_quebra_linha(nome):
+    # Lista de exceções
+    excecoes = ["LTDA", "EPP", "S.A.", "S.A", "SA", "ME"]
+    
+    # Quebra o nome em palavras, preservando as quebras de linha
+    partes = nome.split("\n")
+    partes_capitalizadas = []
+
+    for parte in partes:
+        palavras = parte.split()
+        palavras_capitalizadas = []
+
+        for palavra in palavras:
+            # Verifica se a palavra é uma exceção
+            if palavra.upper() in excecoes:
+                palavras_capitalizadas.append(palavra.upper())  # Mantém a exceção em maiúsculo
+            else:
+                palavras_capitalizadas.append(palavra.capitalize())  # Capitaliza a palavra normalmente
+
+        # Junta as palavras capitalizadas novamente
+        partes_capitalizadas.append(" ".join(palavras_capitalizadas))
+    
+    # Junta novamente as partes com quebra de linha
+    return "\n".join(partes_capitalizadas)
+
 def estilizar_tabela3(tabela):
     # Determinar as colunas a remover ou estilizar
     col_lote_idx = None
@@ -314,20 +339,21 @@ def estilizar_tabela3(tabela):
                 par.paragraph_format.line_spacing = 1.15
                 par.paragraph_format.space_before = Pt(6)
 
-            # Aplicar a função capitalizar_nome na coluna "Descrição"
+            # Aplicar a função capitalizar_nome_com_quebra_linha na coluna "Descrição"
             if idx == col_descricao_idx:
-                # Para cada célula na coluna "Descrição", capitalizar o texto
-                celula.text = capitalizar_nome(celula.text)
+                # Para cada célula na coluna "Descrição", capitalizar o texto preservando a quebra de linha
+                celula.text = capitalizar_nome_com_quebra_linha(celula.text)
 
                 # Após a capitalização, aplicar novamente a estilização na célula
                 for par in celula.paragraphs:
                     for run in par.runs:
                         run.font.name = 'Arial'  # Garantir que a fonte seja Arial
-                        run.font.size = Pt(9)  # Manter o tamanho da fonte
+                        run.font.size = Pt(10)  # Manter o tamanho da fonte
                     par.alignment = 1  # Centralizar texto horizontalmente
                     par.paragraph_format.line_spacing_rule = WD_LINE_SPACING.MULTIPLE
                     par.paragraph_format.line_spacing = 1.15
                     par.paragraph_format.space_before = Pt(6)
+
                 
 
 
