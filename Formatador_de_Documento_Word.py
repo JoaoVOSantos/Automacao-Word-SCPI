@@ -228,6 +228,7 @@ def estilizar_tabela3(tabela):
     col_unidade_idx = None
     col_quantidade_idx = None
     col_marca_idx = None
+    col_descricao_idx = None  # Para armazenar o índice da coluna "Descrição"
 
     # Verifica a primeira linha como cabeçalho para identificar as colunas
     if tabela.rows:
@@ -246,8 +247,7 @@ def estilizar_tabela3(tabela):
             elif texto_celula.startswith("Marca"):
                 col_marca_idx = idx
             elif texto_celula.startswith("Descrição"):
-                # A coluna de descrição pode ser variada, ajusta aqui conforme necessário
-                pass
+                col_descricao_idx = idx  # Identificar o índice da coluna "Descrição"
 
     # Ajusta o índice da coluna "Lote" se estiver misturado com "Código"
     if col_codigo_idx is not None and col_lote_idx is None:
@@ -263,6 +263,24 @@ def estilizar_tabela3(tabela):
         for linha in tabela.rows:
             linha.cells[col_codigo_idx]._element.getparent().remove(linha.cells[col_codigo_idx]._element)
 
+    # Recalcular os índices das colunas após a remoção de "Código"
+    col_lote_idx, col_valor_unitario_idx, col_unidade_idx, col_quantidade_idx, col_marca_idx, col_descricao_idx = None, None, None, None, None, None
+    if tabela.rows:
+        for idx, celula in enumerate(tabela.rows[0].cells):
+            texto_celula = celula.text.strip()
+            if texto_celula.startswith("Lote"):
+                col_lote_idx = idx
+            elif texto_celula.startswith("Valor Unitário"):
+                col_valor_unitario_idx = idx
+            elif texto_celula.startswith("Unidade"):
+                col_unidade_idx = idx
+            elif texto_celula.startswith("Quantidade"):
+                col_quantidade_idx = idx
+            elif texto_celula.startswith("Marca"):
+                col_marca_idx = idx
+            elif texto_celula.startswith("Descrição"):
+                col_descricao_idx = idx  # Identificar novamente o índice da coluna "Descrição"
+
     # Ajusta larguras com base nas colunas da tabela
     ajustar_largura_por_tabela(tabela)
 
@@ -273,11 +291,11 @@ def estilizar_tabela3(tabela):
             tc_pr = celula._element.get_or_add_tcPr()
             borders = parse_xml(
                 r'<w:tcBorders xmlns:w="http://schemas.openxmlformats.org/wordprocessingml/2006/main">'
-                r'<w:top w:val="single" w:sz="4" w:space="0" w:color="000000"/>'
-                r'<w:left w:val="single" w:sz="4" w:space="0" w:color="000000"/>'
-                r'<w:bottom w:val="single" w:sz="4" w:space="0" w:color="000000"/>'
-                r'<w:right w:val="single" w:sz="4" w:space="0" w:color="000000"/>'
-                r'</w:tcBorders>'
+                r'<w:top w:val="single" w:sz="4" w:space="0" w:color="000000"/>' 
+                r'<w:left w:val="single" w:sz="4" w:space="0" w:color="000000"/>' 
+                r'<w:bottom w:val="single" w:sz="4" w:space="0" w:color="000000"/>' 
+                r'<w:right w:val="single" w:sz="4" w:space="0" w:color="000000"/>' 
+                r'</w:tcBorders>' 
             )
             tc_pr.append(borders)
 
@@ -286,17 +304,30 @@ def estilizar_tabela3(tabela):
 
     # Estilizar todas as células restantes
     for linha in tabela.rows:
-        for celula in linha.cells:
+        for idx, celula in enumerate(linha.cells):
             for par in celula.paragraphs:
                 for run in par.runs:
-                    run.font.name = 'Arial'
+                    run.font.name = 'Arial'  # Garantir que a fonte seja Arial
                     run.font.size = Pt(9)
                 par.alignment = 1  # Centralizar texto horizontalmente
                 par.paragraph_format.line_spacing_rule = WD_LINE_SPACING.MULTIPLE
                 par.paragraph_format.line_spacing = 1.15
                 par.paragraph_format.space_before = Pt(6)
 
+            # Aplicar a função capitalizar_nome na coluna "Descrição"
+            if idx == col_descricao_idx:
+                # Para cada célula na coluna "Descrição", capitalizar o texto
+                celula.text = capitalizar_nome(celula.text)
 
+                # Após a capitalização, aplicar novamente a estilização na célula
+                for par in celula.paragraphs:
+                    for run in par.runs:
+                        run.font.name = 'Arial'  # Garantir que a fonte seja Arial
+                        run.font.size = Pt(9)  # Manter o tamanho da fonte
+                    par.alignment = 1  # Centralizar texto horizontalmente
+                    par.paragraph_format.line_spacing_rule = WD_LINE_SPACING.MULTIPLE
+                    par.paragraph_format.line_spacing = 1.15
+                    par.paragraph_format.space_before = Pt(6)
                 
 
 
