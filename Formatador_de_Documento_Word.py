@@ -384,7 +384,77 @@ def estilizar_tabela4(tabela):
                 celula.vertical_alignment = WD_ALIGN_VERTICAL.CENTER
 
     
+def estilizar_tabela5(tabela):
+    """
+    Estiliza a tabela conforme as especificações:
+    - Remove as colunas "Código", "Unidade" e qualquer célula contendo "Desconto".
+    - Mantém a coluna "Descrição do Lote" mesmo que contenha a palavra "Código".
+    - Ajusta textos das colunas "Descrição do Produto/Serviço" e "Descrição do Lote"
+      para manter exceções (como LTDA, EPP, etc.) em maiúsculas e capitalizar as demais palavras.
+    """
+    colunas_para_remover = []
+    colunas_descricao = []  # Para armazenar índices de colunas "Descrição do Produto/Serviço" e "Descrição do Lote"
+
+    if tabela.rows:
+        # Identifica as colunas para remoção e capitalização
+        for idx, celula in enumerate(tabela.rows[0].cells):
+            texto_celula = celula.text.strip().lower()
+            if ("código" in texto_celula and "lote" not in texto_celula) or "unidade" in texto_celula or "desconto" in texto_celula:
+                colunas_para_remover.append(idx)
+            elif "descrição do produto/serviço" in texto_celula or "descrição do lote" in texto_celula:
+                colunas_descricao.append(idx)
+        
+        # Ajustar texto nas colunas de descrição antes de modificar a tabela
+        for linha in tabela.rows:
+            for idx in colunas_descricao:
+                if idx < len(linha.cells):  # Garante que o índice ainda é válido
+                    celula = linha.cells[idx]
+                    celula.text = capitalizar_nome(celula.text)  # Aplica a função de capitalização
+                    # Reaplica a estilização para o texto ajustado
+                    for par in celula.paragraphs:
+                        for run in par.runs:
+                            run.font.name = "Arial"
+                            run.font.size = Pt(10)
+                        par.alignment = 1
+                        par.paragraph_format.line_spacing_rule = WD_LINE_SPACING.MULTIPLE
+                        par.paragraph_format.line_spacing = 1.15
+
+        # Remove as colunas identificadas
+        for idx in sorted(colunas_para_remover, reverse=True):
+            for linha in tabela.rows:
+                if idx < len(linha.cells):  # Verifica se o índice ainda é válido
+                    linha.cells[idx]._element.getparent().remove(linha.cells[idx]._element)
     
+    # Estiliza a tabela
+    for linha in tabela.rows:
+        for celula in linha.cells:
+            # Configuração de fonte e alinhamento para todas as células
+            for par in celula.paragraphs:
+                for run in par.runs:
+                    run.font.name = "Arial"
+                    run.font.size = Pt(10)
+                par.alignment = 1
+                par.paragraph_format.line_spacing_rule = WD_LINE_SPACING.MULTIPLE
+                par.paragraph_format.line_spacing = 1.15
+
+            # Adiciona bordas às células
+            tc_pr = celula._element.get_or_add_tcPr()
+            borders = parse_xml(
+                r'<w:tcBorders xmlns:w="http://schemas.openxmlformats.org/wordprocessingml/2006/main">'
+                r'<w:top w:val="single" w:sz="4" w:space="0" w:color="000000"/>'
+                r'<w:left w:val="single" w:sz="4" w:space="0" w:color="000000"/>'
+                r'<w:bottom w:val="single" w:sz="4" w:space="0" w:color="000000"/>'
+                r'<w:right w:val="single" w:sz="4" w:space="0" w:color="000000"/>'
+                r'</w:tcBorders>'
+            )
+            tc_pr.append(borders)
+
+            # Centraliza verticalmente as células
+            celula.vertical_alignment = WD_ALIGN_VERTICAL.CENTER
+
+
+
+        
 
 
 # Função para aplicar estilos às tabelas
@@ -401,6 +471,8 @@ def estilizar_tabelas(doc):
             estilizar_tabela3(tabela)
         elif i == 3:
             estilizar_tabela4(tabela)
+        elif i == 4:
+            estilizar_tabela5(tabela)
            
 
 
