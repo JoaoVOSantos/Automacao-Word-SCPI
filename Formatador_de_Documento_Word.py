@@ -598,6 +598,89 @@ def estilizar_tabela7(tabela):
             # Centraliza verticalmente as células
             celula.vertical_alignment = WD_ALIGN_VERTICAL.CENTER
 
+def capitalizar_nome_com_quebra(texto):
+    """
+    Capitaliza o nome, preservando as quebras de linha. As exceções, como LTDA, ME, etc., são mantidas em maiúsculas.
+    """
+    linhas = texto.split('\n')  # Divide o texto nas quebras de linha
+    linhas_capitalizadas = []
+
+    for linha in linhas:
+        palavras = linha.split()  # Divide a linha em palavras
+        palavras_capitalizadas = []
+        
+        for palavra in palavras:
+            # Verifica se a palavra é uma exceção e a mantém em maiúsculas, caso contrário capitaliza a palavra
+            if palavra.upper() in ["LTDA", "ME", "MEI", "EIRELI"]:  # Liste outras exceções aqui
+                palavras_capitalizadas.append(palavra.upper())
+            else:
+                palavras_capitalizadas.append(palavra.capitalize())  # Capitaliza a palavra
+
+        linhas_capitalizadas.append(' '.join(palavras_capitalizadas))  # Junta as palavras capitalizadas
+
+    return '\n'.join(linhas_capitalizadas)  # Junta novamente com quebras de linha
+
+
+def estilizar_tabela8(tabela):
+    """
+    Estiliza a tabela 8, aplicando as seguintes regras:
+    - Se a primeira palavra da célula for 'Código', remove a coluna inteira.
+    - Se for 'Lote', o valor será mantido.
+    - Na coluna 'Descrição', capitaliza as exceções (LTDA, ME, etc.) e coloca a primeira letra de cada palavra em maiúscula, preservando as quebras de linha.
+    """
+    
+    # Verifica e remove a coluna se a primeira célula de qualquer linha contiver 'Código'
+    col_codigo = None  # Variável para armazenar o índice da coluna 'Código'
+    
+    for linha in tabela.rows:
+        for idx, celula in enumerate(linha.cells):
+            texto_celula = celula.text.strip().lower()
+
+            # Se a primeira palavra for "Código", armazena o índice da coluna para remoção
+            if texto_celula.startswith("código"):
+                col_codigo = idx
+                break  # Sai do loop após encontrar a coluna
+
+    if col_codigo is not None:
+        # Remove a coluna inteira se encontrada
+        for i in range(len(tabela.rows)):  # Para cada linha, remove a célula na coluna
+            tabela.rows[i]._element.remove(tabela.rows[i].cells[col_codigo]._tc)
+
+    # Processa as colunas restantes
+    for linha in tabela.rows:
+        for idx, celula in enumerate(linha.cells):
+            texto_celula = celula.text.strip().lower()
+
+            # Capitaliza a coluna "Descrição" com exceções, preservando quebras de linha
+            if idx == 2:  # Descrição
+                celula.text = capitalizar_nome_com_quebra(celula.text)
+
+            # Configuração de fonte, alinhamento e espaçamento
+            for par in celula.paragraphs:
+                for run in par.runs:
+                    run.font.name = "Arial"
+                    run.font.size = Pt(10)
+                par.alignment = 1
+                par.paragraph_format.line_spacing_rule = WD_LINE_SPACING.MULTIPLE
+                par.paragraph_format.line_spacing = 1.15
+
+            # Adiciona bordas às células, igual as outras tabelas
+            tc_pr = celula._element.get_or_add_tcPr()
+            borders = parse_xml(
+                r'<w:tcBorders xmlns:w="http://schemas.openxmlformats.org/wordprocessingml/2006/main">'
+                r'<w:top w:val="single" w:sz="4" w:space="0" w:color="000000"/>' 
+                r'<w:left w:val="single" w:sz="4" w:space="0" w:color="000000"/>' 
+                r'<w:bottom w:val="single" w:sz="4" w:space="0" w:color="000000"/>' 
+                r'<w:right w:val="single" w:sz="4" w:space="0" w:color="000000"/>' 
+                r'</w:tcBorders>' 
+            )
+            tc_pr.append(borders)
+
+            # Centraliza verticalmente as células
+            celula.vertical_alignment = WD_ALIGN_VERTICAL.CENTER
+
+
+
 
 # Função para aplicar estilos às tabelas
 def estilizar_tabelas(doc):
@@ -619,6 +702,8 @@ def estilizar_tabelas(doc):
             estilizar_tabela6(tabela)
         elif i == 6:
             estilizar_tabela7(tabela)
+        elif i == 7:
+            estilizar_tabela8(tabela)
            
 
 
