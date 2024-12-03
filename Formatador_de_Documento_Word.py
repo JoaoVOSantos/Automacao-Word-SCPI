@@ -6,8 +6,15 @@ from docx.enum.table import WD_ALIGN_VERTICAL
 from docx.oxml import parse_xml
 from docx.oxml.ns import qn
 from docx.enum.text import WD_LINE_SPACING
+import sys
 import os
 
+# Verifica se o script está rodando como um exe
+if getattr(sys, 'frozen', False):
+    caminho_modelo = os.path.join(sys._MEIPASS, 'Modelo.docx')
+else:
+    caminho_modelo = os.path.join(os.path.dirname(os.path.abspath(__file__)), 'Modelo.docx')    
+    
                 
 # Função para estilizar os parágrafos
 def estilizar_paragrafos(doc):
