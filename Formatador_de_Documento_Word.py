@@ -452,9 +452,93 @@ def estilizar_tabela5(tabela):
             # Centraliza verticalmente as células
             celula.vertical_alignment = WD_ALIGN_VERTICAL.CENTER
 
+def capitalizar_preservando_quebra_linha(celula):
+    """
+    Capitaliza o texto em uma célula, preservando as quebras de linha
+    e mantendo as exceções (e.g., LTDA, EPP, etc.) em maiúsculas.
+    """
+    excecoes = {"ltda", "epp", "s.a.", "s.a", "sa", "me"}
+    
+    for par in celula.paragraphs:
+        for run in par.runs:
+            palavras = run.text.split()  # Divide o texto do run em palavras
+            palavras_capitalizadas = [
+                palavra.upper() if palavra.lower() in excecoes else palavra.capitalize()
+                for palavra in palavras
+            ]
+            # Atualiza o texto do run com as palavras capitalizadas
+            run.text = " ".join(palavras_capitalizadas)
+
+        # Reaplica a estilização no parágrafo
+        par.alignment = 1
+        par.paragraph_format.line_spacing_rule = WD_LINE_SPACING.MULTIPLE
+        par.paragraph_format.line_spacing = 1.15
+
+        for run in par.runs:
+            run.font.name = "Arial"
+            run.font.size = Pt(10)
 
 
-        
+def estilizar_tabela6(tabela):
+    """
+    Estiliza a tabela conforme os requisitos:
+    - Fonte Arial, tamanho 10, centralizado, múltiplo 1,15.
+    - Adiciona bordas pretas ao redor das células.
+    - Capitaliza os textos nas colunas "Descrição do Produto/Serviço" e "Descrição do Lote",
+      preservando as quebras de linha.
+    - Remove colunas com "Código", exceto se associadas a "Lote".
+    """
+    colunas_para_remover = []
+    colunas_descricao = []  # Índices das colunas "Descrição do Produto/Serviço" e "Descrição do Lote"
+
+    if tabela.rows:
+        # Identifica colunas para remoção ou estilização
+        for idx, celula in enumerate(tabela.rows[0].cells):
+            texto_celula = celula.text.strip().lower()
+            if ("código" in texto_celula and "lote" not in texto_celula) or "unidade" in texto_celula or "desconto" in texto_celula:
+                colunas_para_remover.append(idx)
+            elif "descrição do produto/serviço" in texto_celula or "descrição do lote" in texto_celula:
+                colunas_descricao.append(idx)
+
+        # Ajustar texto nas colunas de descrição antes de modificar a tabela
+        for linha in tabela.rows:
+            for idx in colunas_descricao:
+                if idx < len(linha.cells):  # Verifica se o índice é válido
+                    celula = linha.cells[idx]
+                    capitalizar_preservando_quebra_linha(celula)  # Aplica a nova função de capitalização
+
+        # Remove as colunas identificadas
+        for idx in sorted(colunas_para_remover, reverse=True):
+            for linha in tabela.rows:
+                if idx < len(linha.cells):  # Garante que o índice ainda é válido
+                    linha.cells[idx]._element.getparent().remove(linha.cells[idx]._element)
+
+    # Estilização geral da tabela
+    for linha in tabela.rows:
+        for celula in linha.cells:
+            # Configuração de fonte, alinhamento e espaçamento
+            for par in celula.paragraphs:
+                for run in par.runs:
+                    run.font.name = "Arial"
+                    run.font.size = Pt(10)
+                par.alignment = 1
+                par.paragraph_format.line_spacing_rule = WD_LINE_SPACING.MULTIPLE
+                par.paragraph_format.line_spacing = 1.15
+
+            # Adiciona bordas às células
+            tc_pr = celula._element.get_or_add_tcPr()
+            borders = parse_xml(
+                r'<w:tcBorders xmlns:w="http://schemas.openxmlformats.org/wordprocessingml/2006/main">'
+                r'<w:top w:val="single" w:sz="4" w:space="0" w:color="000000"/>'
+                r'<w:left w:val="single" w:sz="4" w:space="0" w:color="000000"/>'
+                r'<w:bottom w:val="single" w:sz="4" w:space="0" w:color="000000"/>'
+                r'<w:right w:val="single" w:sz="4" w:space="0" w:color="000000"/>'
+                r'</w:tcBorders>'
+            )
+            tc_pr.append(borders)
+
+            # Centraliza verticalmente as células
+            celula.vertical_alignment = WD_ALIGN_VERTICAL.CENTER
 
 
 # Função para aplicar estilos às tabelas
@@ -473,6 +557,8 @@ def estilizar_tabelas(doc):
             estilizar_tabela4(tabela)
         elif i == 4:
             estilizar_tabela5(tabela)
+        elif i == 5:
+            estilizar_tabela6(tabela)
            
 
 
