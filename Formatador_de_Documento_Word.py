@@ -541,6 +541,64 @@ def estilizar_tabela6(tabela):
             celula.vertical_alignment = WD_ALIGN_VERTICAL.CENTER
 
 
+def capitalizar_inabilitado(texto):
+    # Se o texto começa com "Inabilitado", capitaliza corretamente a primeira palavra
+    if texto.startswith("Inabilitado"):
+        partes = texto.split("\n", 1)  # Divida em Inabilitado e o resto
+        partes[1] = partes[1].lower().capitalize()  # Capitaliza o resto do texto após a quebra de linha
+        return partes[0] + "\n" + partes[1]
+    return texto
+
+
+def estilizar_tabela7(tabela):
+    """
+    Estiliza a tabela, aplicando as seguintes regras:
+    - Na coluna "Proponente / Fornecedor", capitaliza as exceções (LTDA, ME, EPP, etc.).
+    - Na coluna "Representante", capitaliza apenas a primeira letra de cada palavra.
+    - Na última coluna (index 4), capitaliza a palavra 'Inabilitado' corretamente e ajusta o texto subsequente.
+    - Aplica bordas, centraliza o texto e configura a fonte para Arial, tamanho 10, com espaçamento de 1,15.
+    """
+    for linha in tabela.rows:
+        for idx, celula in enumerate(linha.cells):
+            texto_celula = celula.text.strip().lower()
+
+            # Capitaliza a coluna "Proponente / Fornecedor" usando a função capitalizar_nome
+            if idx == 1:  # Proponente / Fornecedor
+                celula.text = capitalizar_nome(celula.text)
+
+            # Capitaliza a coluna "Representante" usando a função capitalizar_nome
+            elif idx == 3:  # Representante
+                celula.text = capitalizar_nome(celula.text)
+
+            # Ajusta o texto da última coluna (index 4) para capitalizar corretamente 'Inabilitado'
+            elif idx == 4:  # Última coluna
+                celula.text = capitalizar_inabilitado(celula.text)
+
+            # Configuração de fonte, alinhamento e espaçamento
+            for par in celula.paragraphs:
+                for run in par.runs:
+                    run.font.name = "Arial"
+                    run.font.size = Pt(10)
+                par.alignment = 1
+                par.paragraph_format.line_spacing_rule = WD_LINE_SPACING.MULTIPLE
+                par.paragraph_format.line_spacing = 1.15
+
+            # Adiciona bordas às células
+            tc_pr = celula._element.get_or_add_tcPr()
+            borders = parse_xml(
+                r'<w:tcBorders xmlns:w="http://schemas.openxmlformats.org/wordprocessingml/2006/main">'
+                r'<w:top w:val="single" w:sz="4" w:space="0" w:color="000000"/>' 
+                r'<w:left w:val="single" w:sz="4" w:space="0" w:color="000000"/>' 
+                r'<w:bottom w:val="single" w:sz="4" w:space="0" w:color="000000"/>' 
+                r'<w:right w:val="single" w:sz="4" w:space="0" w:color="000000"/>' 
+                r'</w:tcBorders>' 
+            )
+            tc_pr.append(borders)
+
+            # Centraliza verticalmente as células
+            celula.vertical_alignment = WD_ALIGN_VERTICAL.CENTER
+
+
 # Função para aplicar estilos às tabelas
 def estilizar_tabelas(doc):
     for i, tabela in enumerate(doc.tables):
@@ -559,6 +617,8 @@ def estilizar_tabelas(doc):
             estilizar_tabela5(tabela)
         elif i == 5:
             estilizar_tabela6(tabela)
+        elif i == 6:
+            estilizar_tabela7(tabela)
            
 
 
