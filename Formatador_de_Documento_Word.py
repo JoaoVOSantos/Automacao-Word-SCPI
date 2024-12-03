@@ -1,9 +1,10 @@
 import tkinter as tk
-from tkinter import filedialog
+from tkinter import filedialog, messagebox
 from docx import Document
 from docx.shared import Pt, Cm, Inches
 from docx.enum.table import WD_ALIGN_VERTICAL
 from docx.oxml import parse_xml
+from docx.oxml.ns import qn
 from docx.enum.text import WD_LINE_SPACING
 import os
 
@@ -680,6 +681,70 @@ def estilizar_tabela8(tabela):
             celula.vertical_alignment = WD_ALIGN_VERTICAL.CENTER
 
 
+def estilizar_tabela9(tabela):
+    """
+    Estiliza a tabela 9 aplicando as seguintes regras:
+    - Remove a coluna de índice 1 somente se for 'Código' (não 'Lote').
+    - Aplica estilização com Arial, tamanho 9, centralizado, espaçamento múltiplo de 1.15.
+    - Define larguras manuais específicas caso a coluna "Código" seja removida.
+    """
+
+    colunas_para_remover = []  # Índices das colunas a serem removidas
+
+    # Verifica se o texto da coluna contém 'Código' ou 'Lote'
+    if len(tabela.rows) > 0:  # Verifica se há linhas na tabela
+        texto_primeira_coluna = tabela.rows[0].cells[1].text.strip().lower()
+        texto_ultima_coluna = tabela.rows[-1].cells[1].text.strip().lower()
+
+        # A lógica aqui verifica se a palavra "lote" não está presente em nenhuma das colunas
+        if "lote" not in texto_primeira_coluna and "lote" not in texto_ultima_coluna:
+            colunas_para_remover.append(1)
+
+    # Recria a tabela sem as colunas indesejadas
+    if colunas_para_remover:
+        for linha in tabela.rows:
+            nova_linha = [celula.text for idx, celula in enumerate(linha.cells) if idx not in colunas_para_remover]
+            while len(linha.cells) > len(nova_linha):  # Remove colunas adicionais
+                linha.cells[-1]._element.getparent().remove(linha.cells[-1]._element)
+
+            # Atualiza as células restantes na linha
+            for idx, texto in enumerate(nova_linha):
+                linha.cells[idx].text = texto
+
+        # Define larguras manuais para as colunas restantes
+        larguras = [Cm(1.01), Cm(9.26), Cm(1.41), Cm(1.85), Cm(2.05), Cm(1.95)]
+        for linha in tabela.rows:
+            for idx, celula in enumerate(linha.cells):
+                if idx < len(larguras):  # Aplica as larguras definidas, se disponíveis
+                    celula.width = larguras[idx]
+
+    # Aplica estilização nas colunas restantes
+    for linha in tabela.rows:
+        for celula in linha.cells:
+            # Configuração de fonte, alinhamento e espaçamento
+            for par in celula.paragraphs:
+                for run in par.runs:
+                    run.font.name = "Arial"
+                    run.font.size = Pt(9)
+                par.alignment = 1  # Alinhamento centrado horizontal
+                par.paragraph_format.line_spacing_rule = WD_LINE_SPACING.MULTIPLE
+                par.paragraph_format.line_spacing = 1.15
+
+            # Adiciona bordas às células
+            tc_pr = celula._element.get_or_add_tcPr()
+            borders = parse_xml(
+                r'<w:tcBorders xmlns:w="http://schemas.openxmlformats.org/wordprocessingml/2006/main">'
+                r'<w:top w:val="single" w:sz="4" w:space="0" w:color="000000"/>' 
+                r'<w:left w:val="single" w:sz="4" w:space="0" w:color="000000"/>' 
+                r'<w:bottom w:val="single" w:sz="4" w:space="0" w:color="000000"/>' 
+                r'<w:right w:val="single" w:sz="4" w:space="0" w:color="000000"/>' 
+                r'</w:tcBorders>' 
+            )
+            tc_pr.append(borders)
+
+            # Centraliza verticalmente as células
+            celula.vertical_alignment = WD_ALIGN_VERTICAL.CENTER
+
 
 
 # Função para aplicar estilos às tabelas
@@ -704,6 +769,23 @@ def estilizar_tabelas(doc):
             estilizar_tabela7(tabela)
         elif i == 7:
             estilizar_tabela8(tabela)
+        elif i == 8:
+            estilizar_tabela9(tabela)
+        else:
+            for linha in tabela.rows:
+                for celula in linha.cells:
+                    # Configuração de fonte, alinhamento e espaçamento
+                    for par in celula.paragraphs:
+                        for run in par.runs:
+                            run.font.name = "Arial"
+                            run.font.size = Pt(9)
+                        par.alignment = 1  # Alinhamento centrado horizontal
+                        par.paragraph_format.line_spacing_rule = WD_LINE_SPACING.MULTIPLE
+                        par.paragraph_format.line_spacing = 1.15
+                        par.paragraph_format.space_before = Pt(6)  
+
+                    # Centraliza verticalmente as células
+                    celula.vertical_alignment = WD_ALIGN_VERTICAL.CENTER
            
 
 
