@@ -754,46 +754,52 @@ def estilizar_tabela9(tabela):
 
 
 
-# Função para aplicar estilos às tabelas
 def estilizar_tabelas(doc):
     for i, tabela in enumerate(doc.tables):
-        if i == 0:
-            # Estilizar a primeira tabela com estilo de Tabela 1
-            estilizar_tabela1(tabela)
-        elif i == 1:
-            # Estilizar a segunda tabela com estilo de Tabela 2
-            estilizar_tabela2(tabela)
-        elif i == 2:
-            # Estilizar a terceira tabela com estilo de Tabela 3
-            estilizar_tabela3(tabela)
-        elif i == 3:
-            estilizar_tabela4(tabela)
-        elif i == 4:
-            estilizar_tabela5(tabela)
-        elif i == 5:
-            estilizar_tabela6(tabela)
-        elif i == 6:
-            estilizar_tabela7(tabela)
-        elif i == 7:
-            estilizar_tabela8(tabela)
-        elif i == 8:
-            estilizar_tabela9(tabela)
-        else:
-            for linha in tabela.rows:
-                for celula in linha.cells:
-                    # Configuração de fonte, alinhamento e espaçamento
-                    for par in celula.paragraphs:
-                        for run in par.runs:
-                            run.font.name = "Arial"
-                            run.font.size = Pt(9)
-                        par.alignment = 1  # Alinhamento centrado horizontal
-                        par.paragraph_format.line_spacing_rule = WD_LINE_SPACING.MULTIPLE
-                        par.paragraph_format.line_spacing = 1.15
-                        par.paragraph_format.space_before = Pt(6)  
+        try:
+            print(f"Iniciando a estilização da Tabela {i + 1}...")
 
-                    # Centraliza verticalmente as células
-                    celula.vertical_alignment = WD_ALIGN_VERTICAL.CENTER
-           
+            if i == 0:
+                # Estilizar a primeira tabela com estilo de Tabela 1
+                estilizar_tabela1(tabela)
+            elif i == 1:
+                # Estilizar a segunda tabela com estilo de Tabela 2
+                estilizar_tabela2(tabela)
+            elif i == 2:
+                # Estilizar a terceira tabela com estilo de Tabela 3
+                estilizar_tabela3(tabela)
+            elif i == 3:
+                estilizar_tabela4(tabela)
+            elif i == 4:
+                estilizar_tabela5(tabela)
+            elif i == 5:
+                estilizar_tabela6(tabela)
+            elif i == 6:
+                estilizar_tabela7(tabela)
+            elif i == 7:
+                estilizar_tabela8(tabela)
+            elif i == 8:
+                estilizar_tabela9(tabela)
+            else:
+                for linha in tabela.rows:
+                    for celula in linha.cells:
+                        # Configuração de fonte, alinhamento e espaçamento
+                        for par in celula.paragraphs:
+                            for run in par.runs:
+                                run.font.name = "Arial"
+                                run.font.size = Pt(9)
+                            par.alignment = 1  # Alinhamento centrado horizontal
+                            par.paragraph_format.line_spacing_rule = WD_LINE_SPACING.MULTIPLE
+                            par.paragraph_format.line_spacing = 1.15
+                            par.paragraph_format.space_before = Pt(6)  
+
+                        # Centraliza verticalmente as células
+                        celula.vertical_alignment = WD_ALIGN_VERTICAL.CENTER
+
+            print(f"Estilização da Tabela {i + 1} concluída com sucesso!")
+        
+        except Exception as e:
+            print(f"Erro ao estilizar a Tabela {i + 1}: {str(e)}")
 
 
 # Função para copiar conteúdo e estilizar
