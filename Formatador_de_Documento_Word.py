@@ -9,11 +9,34 @@ from docx.enum.text import WD_LINE_SPACING
 import sys
 import os
 
+from win32com.client import Dispatch  # Necessário para corrigir o arquivo Word
+
 # Verifica se o script está rodando como um exe
 if getattr(sys, 'frozen', False):
     caminho_modelo = os.path.join(sys._MEIPASS, 'Modelo.docx')
 else:
-    caminho_modelo = os.path.join(os.path.dirname(os.path.abspath(__file__)), 'Modelo.docx')    
+    caminho_modelo = os.path.join(os.path.dirname(os.path.abspath(__file__)), 'Modelo.docx')
+
+
+def corrigir_arquivo_docx(caminho):
+    """
+    Corrige um arquivo .docx inválido verificando sua estrutura e recriando as partes ausentes.
+    """
+    try:
+        caminho_absoluto = os.path.abspath(caminho)
+        word = Dispatch("Word.Application")
+        word.Visible = False  # Deixa o processo invisível para o usuário
+        doc = word.Documents.Open(caminho_absoluto)
+        caminho_corrigido = caminho.replace('.docx', '_corrigido.docx')
+        doc.SaveAs(caminho_corrigido, FileFormat=16)  # Salva como um DOCX válido
+        doc.Close()
+        word.Quit()
+        print(f"Documento corrigido salvo em {caminho_corrigido}")
+        return caminho_corrigido
+
+    except Exception as e:
+        print(f"Erro ao corrigir o documento com o Word: {str(e)}")
+        return None
     
                 
 # Função para estilizar os parágrafos
@@ -806,8 +829,13 @@ def estilizar_tabelas(doc):
 def copiar_conteudo_para_modelo():
     caminho_arquivo = filedialog.askopenfilename(title="Selecione um arquivo Word", filetypes=[("Documentos Word", "*.docx")])
     if caminho_arquivo:
-        doc_origem = Document(caminho_arquivo)
-        caminho_modelo = os.path.join(os.path.dirname(os.path.abspath(__file__)), 'Modelo.docx')
+        # Corrigir e salvar o arquivo selecionado como um novo .docx
+        caminho_corrigido = corrigir_arquivo_docx(caminho_arquivo)
+        if not caminho_corrigido:
+            messagebox.showerror("Erro", "Não foi possível corrigir o arquivo selecionado.")
+            return
+
+        doc_origem = Document(caminho_corrigido)
         
         if os.path.exists(caminho_modelo):
             doc_modelo = Document(caminho_modelo)
@@ -832,4 +860,4 @@ def criar_interface():
     copiar_conteudo_para_modelo()
 
 # Executa o programa
-criar_interface() 
+criar_interface()
