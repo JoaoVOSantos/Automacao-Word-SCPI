@@ -825,6 +825,16 @@ def estilizar_tabelas(doc):
             print(f"Erro ao estilizar a Tabela {i + 1}: {str(e)}")
 
 
+
+def excluir_arquivo(caminho):
+    try:
+        os.remove(caminho)
+        print(f"Arquivo {caminho} excluído com sucesso.")
+    except Exception as e:
+        print(f"Erro ao excluir o arquivo {caminho}: {str(e)}")
+
+
+
 # Função para copiar conteúdo e estilizar
 def copiar_conteudo_para_modelo():
     caminho_arquivo = filedialog.askopenfilename(title="Selecione um arquivo Word", filetypes=[("Documentos Word", "*.docx")])
@@ -850,8 +860,14 @@ def copiar_conteudo_para_modelo():
             if caminho_saida:
                 doc_modelo.save(caminho_saida)
                 print(f"Arquivo salvo em: {caminho_saida}")
+
+                # Excluir o arquivo corrigido após salvar o novo documento
+                excluir_arquivo(caminho_corrigido)
         else:
             print(f"Modelo não encontrado: {caminho_modelo}")
+
+
+
 
 # Interface gráfica
 def criar_interface():
